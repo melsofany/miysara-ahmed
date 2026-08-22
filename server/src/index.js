@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import db from './db.js';
 import { seed } from './seed.js';
 import { authRequired } from './middleware/auth.js';
 import authModule from './modules/auth.js';
@@ -36,11 +37,31 @@ app.use(helmet({
   },
 }));
 app.use(cors({ origin: process.env.CORS_ORIGIN?.split(',') || true, credentials: false }));
+app.use('/api/admin/migrate', express.text({ type: () => true, limit: '50mb' }));
 app.use(express.json({ limit: '2mb' }));
 
 app.use('/api', rateLimit({ windowMs: 60 * 1000, max: 600, standardHeaders: true, legacyHeaders: false, message: { error: 'طلبات كثيرة، انتظر قليلًا' } }));
 
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'MIYSARA Ahmed API' }));
+
+// نقطة ترحيل لمرة واحدة — تُحذف بعد نقل البيانات
+if (process.env.MIGRATE_KEY) {
+  app.post('/api/admin/migrate', async (req, res) => {
+    if (req.get('x-migrate-key') !== process.env.MIGRATE_KEY) return res.status(403).json({ error: 'ممنوع' });
+    const count = db.prepare('SELECT COUNT(*) c FROM products').get().c;
+    if (count > 0) return res.status(409).json({ error: 'البيانات منقولة مسبقًا', products: count });
+    try {
+      db.exec(String(req.body || ''));
+      const counts = {};
+      for (const t of ['products', 'product_variants', 'categories', 'inventory_movements']) {
+        counts[t] = db.prepare(`SELECT COUNT(*) c FROM ${t}`).get().c;
+      }
+      res.json({ ok: true, counts });
+    } catch (e) {
+      res.status(400).json({ error: 'فشل الترحيل: ' + e.message.slice(0, 200) });
+    }
+  });
+}
 app.use('/api/auth', authModule);
 app.use('/api', authRequired, usersModule);
 app.use('/api', authRequired, catalogModule);
