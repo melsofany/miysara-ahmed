@@ -9,3 +9,6 @@ old_data/migration_report.txt
 .DS_Store
 *.log
 .env
+old_data/__pycache__/
+server/data/miysara.db-shm
+server/data/miysara.db-wal
