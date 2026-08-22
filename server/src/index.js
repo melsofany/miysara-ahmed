@@ -45,6 +45,39 @@ app.use('/api', rateLimit({ windowMs: 60 * 1000, max: 600, standardHeaders: true
 
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'MIYSARA Ahmed API' }));
 
+// نقطة نقل بيانات مؤقتة (محمية بمفتاح الإدارة) — تُستخدم لاستيراد المبيعات التاريخية
+app.post('/api/admin/import-sales', express.json({ limit: '50mb' }), (req, res) => {
+  const key = req.get('x-admin-key') || '';
+  if (!process.env.ADMIN_PASSWORD || key !== process.env.ADMIN_PASSWORD) {
+    return res.status(403).json({ error: 'غير مصرح' });
+  }
+  const { invoices = [], items = [], wipe = false } = req.body || {};
+  const t = db.transaction(() => {
+    if (wipe) {
+      db.exec("DELETE FROM invoice_items; DELETE FROM invoices;");
+    }
+    const insInv = db.prepare(`INSERT INTO invoices (invoice_number, created_at, pos_location_id, cashier_id, shift_id, subtotal, discount, total, payment_method, paid_amount, change_amount, status, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+    const insItem = db.prepare(`INSERT INTO invoice_items (invoice_id, variant_id, product_name, size, color, quantity, unit_price, cost_price, discount, total, returned_qty) VALUES (?,?,?,?,?,?,?,?,?,?,0)`);
+    const idMap = new Map();
+    for (const v of invoices) {
+      const cur = insInv.run(v.invoice_number, v.created_at, v.pos_location_id, v.cashier_id, v.shift_id, v.subtotal, v.discount, v.total, v.payment_method, v.paid_amount, v.change_amount, v.status, v.notes);
+      idMap.set(v.temp_id, cur.lastInsertRowid);
+    }
+    for (const it of items) {
+      const iid = idMap.get(it.invoice_temp_id);
+      if (!iid) continue;
+      insItem.run(iid, it.variant_id, it.product_name, it.size, it.color, it.quantity, it.unit_price, it.cost_price, it.discount, it.total);
+    }
+    return { invoices: invoices.length, items: items.length };
+  });
+  try {
+    const r = t();
+    res.json({ ok: true, ...r, total_invoices: db.prepare('SELECT COUNT(*) c FROM invoices').get().c });
+  } catch (e) {
+    res.status(500).json({ error: e.message.slice(0, 300) });
+  }
+});
+
 // استعادة البيانات القديمة لمرة واحدة عند أول تشغيل (تُعاد بعد كل نشر إن لم تُنقل)
 async function restoreLegacy() {
   const count = db.prepare('SELECT COUNT(*) c FROM products').get().c;
