@@ -56,12 +56,16 @@ app.post('/api/admin/import-sales', express.json({ limit: '50mb' }), (req, res) 
     if (wipe) {
       db.exec("DELETE FROM invoice_items; DELETE FROM invoices;");
     }
-    const insInv = db.prepare(`INSERT INTO invoices (invoice_number, created_at, pos_location_id, cashier_id, shift_id, subtotal, discount, total, payment_method, paid_amount, change_amount, status, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+    // INSERT OR IGNORE: idempotent — الدفعة المعاد إرسالها لا تفشل
+    const insInv = db.prepare(`INSERT OR IGNORE INTO invoices (invoice_number, created_at, pos_location_id, cashier_id, shift_id, subtotal, discount, total, payment_method, paid_amount, change_amount, status, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+    const findInv = db.prepare(`SELECT id FROM invoices WHERE invoice_number=?`);
+    const delItems = db.prepare(`DELETE FROM invoice_items WHERE invoice_id=?`);
     const insItem = db.prepare(`INSERT INTO invoice_items (invoice_id, variant_id, product_name, size, color, quantity, unit_price, cost_price, discount, total, returned_qty) VALUES (?,?,?,?,?,?,?,?,?,?,0)`);
     const idMap = new Map();
     for (const v of invoices) {
       const cur = insInv.run(v.invoice_number, v.created_at, v.pos_location_id, v.cashier_id, v.shift_id, v.subtotal, v.discount, v.total, v.payment_method, v.paid_amount, v.change_amount, v.status, v.notes);
-      idMap.set(v.temp_id, cur.lastInsertRowid);
+      const iid = cur.changes ? cur.lastInsertRowid : findInv.get(v.invoice_number)?.id;
+      if (iid) { idMap.set(v.temp_id, iid); delItems.run(iid); }
     }
     for (const it of items) {
       const iid = idMap.get(it.invoice_temp_id);
