@@ -172,32 +172,61 @@ export default function PosScreen() {
           </div>
         </div>
 
-        {/* نتائج البحث */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[62vh] overflow-y-auto pe-1">
-          {results.map(r => {
-            const sel = selected[r.variant_id] || {};
-            const out = r.pos_stock <= 0;
-            return (
-              <div key={r.variant_id} className={`card p-3 flex items-center gap-3 transition ${sel.on ? 'ring-2 ring-brand-500' : ''} ${out ? 'opacity-60' : ''}`}>
-                <input type="checkbox" className="h-5 w-5 accent-brand-600" checked={!!sel.on}
-                  onChange={e => setSelected({ ...selected, [r.variant_id]: { ...sel, on: e.target.checked, qty: sel.qty || 1 } })} />
-                <div className="flex-1 min-w-0">
-                  <div className="font-bold text-sm truncate">{r.product_name}</div>
-                  <div className="text-xs text-slate-500">{r.size} • {r.color} • {r.sku}</div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="font-extrabold text-brand-700">{fmt(r.selling_price)}</span>
-                    <span className={`badge ${out ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>{out ? 'غير متوفر' : `متوفر ${fmt(r.pos_stock)}`}</span>
-                  </div>
-                </div>
-                {sel.on && (
-                  <input type="number" min="1" className="input !w-16 !px-2 text-center" value={sel.qty || 1}
-                    onChange={e => setSelected({ ...selected, [r.variant_id]: { ...sel, qty: e.target.value } })} />
-                )}
-                <button disabled={out} className="btn-primary !px-3 !py-2 text-lg" onClick={() => addToCart(r, 1)}><Icon name="plus" size={20} /></button>
-              </div>
-            );
-          })}
-          {!results.length && <div className="col-span-full py-14 text-center text-slate-400">لا نتائج — جرّب فلاتر أخرى</div>}
+        {/* نتائج البحث — جدول بأعمدة واضحة: باركود / وصف / كود / مقاس / لون / سعر */}
+        <div className="card overflow-hidden">
+          <div className="overflow-auto max-h-[62vh]">
+            <table className="w-full text-sm border-collapse">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-slate-800 text-white">
+                  <th className="p-2.5 w-9"></th>
+                  <th className="p-2.5 text-right font-bold whitespace-nowrap">الباركود</th>
+                  <th className="p-2.5 text-right font-bold">الوصف</th>
+                  <th className="p-2.5 text-right font-bold whitespace-nowrap">الكود</th>
+                  <th className="p-2.5 text-right font-bold whitespace-nowrap">المقاس</th>
+                  <th className="p-2.5 text-right font-bold whitespace-nowrap">اللون</th>
+                  <th className="p-2.5 text-right font-bold whitespace-nowrap">السعر</th>
+                  <th className="p-2.5 text-center font-bold whitespace-nowrap">الرصيد</th>
+                  <th className="p-2.5 text-center font-bold whitespace-nowrap">الكمية</th>
+                  <th className="p-2.5 w-12"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {results.map(r => {
+                  const sel = selected[r.variant_id] || {};
+                  const out = r.pos_stock <= 0;
+                  return (
+                    <tr key={r.variant_id} title={out ? 'غير متوفر في نقطة البيع' : 'اضغط للإضافة للفاتورة'}
+                      className={`transition ${out ? 'opacity-50 bg-slate-50' : 'hover:bg-brand-50 cursor-pointer'} ${sel.on ? '!bg-brand-100/70' : ''}`}
+                      onClick={() => !out && addToCart(r, 1)}>
+                      <td className="p-2.5 text-center" onClick={e => e.stopPropagation()}>
+                        <input type="checkbox" className="h-4 w-4 accent-brand-600 cursor-pointer" checked={!!sel.on}
+                          onChange={e => setSelected({ ...selected, [r.variant_id]: { ...sel, on: e.target.checked, qty: sel.qty || 1 } })} />
+                      </td>
+                      <td className="p-2.5 font-mono text-xs text-slate-500 whitespace-nowrap" dir="ltr">{r.barcode || '—'}</td>
+                      <td className="p-2.5 font-bold text-slate-800 min-w-[160px]">{r.product_name}</td>
+                      <td className="p-2.5 font-mono text-xs text-slate-500 whitespace-nowrap" dir="ltr">{r.sku}</td>
+                      <td className="p-2.5 whitespace-nowrap">{r.size || '—'}</td>
+                      <td className="p-2.5 whitespace-nowrap">{r.color || '—'}</td>
+                      <td className="p-2.5 font-extrabold text-brand-700 whitespace-nowrap">{fmt(r.selling_price)}</td>
+                      <td className="p-2.5 text-center whitespace-nowrap">
+                        <span className={`badge ${out ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>{out ? 'غير متوفر' : fmt(r.pos_stock)}</span>
+                      </td>
+                      <td className="p-2.5 text-center" onClick={e => e.stopPropagation()}>
+                        {sel.on && (
+                          <input type="number" min="1" className="input !w-16 !px-2 !py-1 text-center" value={sel.qty || 1}
+                            onChange={e => setSelected({ ...selected, [r.variant_id]: { ...sel, qty: e.target.value } })} />
+                        )}
+                      </td>
+                      <td className="p-2.5 text-center" onClick={e => e.stopPropagation()}>
+                        <button disabled={out} className="btn-primary !px-2.5 !py-1.5" title="إضافة للفاتورة" onClick={() => addToCart(r, 1)}><Icon name="plus" size={16} /></button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {!results.length && <div className="py-14 text-center text-slate-400">لا نتائج — جرّب فلاتر أخرى</div>}
+          </div>
         </div>
       </div>
 
@@ -205,30 +234,47 @@ export default function PosScreen() {
       <div className="card p-4 lg:sticky lg:top-4">
         <h3 className="font-extrabold text-lg mb-3"><Icon name="receipt" size={15} className="inline-block align-[-2px]" /> الفاتورة الحالية</h3>
         <ErrorBox error={error} />
-        <div className="space-y-2 max-h-[38vh] overflow-y-auto">
-          {cart.map((x, i) => (
-            <div key={x.variant_id} className="rounded-xl bg-slate-50 p-2.5">
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="font-bold text-sm truncate">{x.product_name}</div>
-                  <div className="text-xs text-slate-500">{x.size} • {x.color}</div>
-                </div>
-                <button className="text-rose-500 font-bold px-2" onClick={() => setCart(cart.filter((_, j) => j !== i))}><Icon name="trash" size={15} className="inline-block align-[-2px]" /></button>
-              </div>
-              <div className="mt-2 flex items-center gap-2 text-sm">
-                <button className="btn-secondary !px-2.5 !py-1" onClick={() => setCart(cart.map((c, j) => j === i ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}>−</button>
-                <input type="number" min="1" className="input !w-16 !py-1 text-center" value={x.quantity}
-                  onChange={e => setCart(cart.map((c, j) => j === i ? { ...c, quantity: Math.max(1, Number(e.target.value) || 1) } : c))} />
-                <button className="btn-secondary !px-2.5 !py-1" onClick={() => setCart(cart.map((c, j) => j === i ? { ...c, quantity: c.quantity + 1 } : c))}><Icon name="plus" size={20} /></button>
-                <span className="text-slate-400">×</span>
-                <span className="font-bold">{fmt(x.selling_price)}</span>
-                <input type="number" min="0" placeholder="خصم" title="خصم البند" className="input !w-20 !py-1 text-center"
-                  value={x.discount || ''} onChange={e => setCart(cart.map((c, j) => j === i ? { ...c, discount: Number(e.target.value) || 0 } : c))} />
-                <span className="me-auto font-extrabold text-brand-700">{fmt(x.quantity * x.selling_price - (x.discount || 0))}</span>
-              </div>
-            </div>
-          ))}
-          {!cart.length && <div className="py-10 text-center text-slate-400 text-sm">امسح باركود أو اختر منتجات لإضافتها</div>}
+        <div className="max-h-[38vh] overflow-y-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead className="sticky top-0 z-10">
+              <tr className="bg-slate-100 text-slate-600 text-xs">
+                <th className="p-2 text-right font-bold">الوصف</th>
+                <th className="p-2 text-center font-bold whitespace-nowrap">الكمية</th>
+                <th className="p-2 text-right font-bold whitespace-nowrap">السعر</th>
+                <th className="p-2 text-right font-bold whitespace-nowrap">خصم</th>
+                <th className="p-2 text-right font-bold whitespace-nowrap">الإجمالي</th>
+                <th className="p-2 w-8"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {cart.map((x, i) => (
+                <tr key={x.variant_id} className="hover:bg-slate-50">
+                  <td className="p-2">
+                    <div className="font-bold text-slate-800 leading-tight">{x.product_name}</div>
+                    <div className="text-xs text-slate-500">{x.size} • {x.color}</div>
+                  </td>
+                  <td className="p-2">
+                    <div className="flex items-center justify-center gap-1">
+                      <button className="btn-secondary !px-2 !py-0.5" onClick={() => setCart(cart.map((c, j) => j === i ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}>−</button>
+                      <input type="number" min="1" className="input !w-12 !py-0.5 !px-1 text-center" value={x.quantity}
+                        onChange={e => setCart(cart.map((c, j) => j === i ? { ...c, quantity: Math.max(1, Number(e.target.value) || 1) } : c))} />
+                      <button className="btn-secondary !px-2 !py-0.5" onClick={() => setCart(cart.map((c, j) => j === i ? { ...c, quantity: c.quantity + 1 } : c))}><Icon name="plus" size={14} /></button>
+                    </div>
+                  </td>
+                  <td className="p-2 whitespace-nowrap font-semibold">{fmt(x.selling_price)}</td>
+                  <td className="p-2">
+                    <input type="number" min="0" title="خصم البند" className="input !w-16 !py-0.5 !px-1 text-center"
+                      value={x.discount || ''} onChange={e => setCart(cart.map((c, j) => j === i ? { ...c, discount: Number(e.target.value) || 0 } : c))} />
+                  </td>
+                  <td className="p-2 whitespace-nowrap font-extrabold text-brand-700">{fmt(x.quantity * x.selling_price - (x.discount || 0))}</td>
+                  <td className="p-2 text-center">
+                    <button className="text-rose-500 hover:text-rose-700" title="حذف البند" onClick={() => setCart(cart.filter((_, j) => j !== i))}><Icon name="trash" size={15} /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!cart.length && <div className="py-10 text-center text-slate-400 text-sm">امسح باركود أو اضغط على أي منتج لإضافته</div>}
         </div>
 
         <div className="mt-3 border-t border-dashed pt-3 space-y-2 text-sm">
