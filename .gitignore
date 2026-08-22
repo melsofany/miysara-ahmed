@@ -12,5 +12,5 @@ old_data/migration_report.txt
 old_data/__pycache__/
 server/data/miysara.db-shm
 server/data/miysara.db-wal
-old_data/migration.sql
 old_data/*.json
+old_data/migration.sql

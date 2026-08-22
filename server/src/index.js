@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import fs from 'fs';
+import zlib from 'zlib';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import db from './db.js';
@@ -44,24 +45,25 @@ app.use('/api', rateLimit({ windowMs: 60 * 1000, max: 600, standardHeaders: true
 
 app.get('/api/health', (req, res) => res.json({ ok: true, name: 'MIYSARA Ahmed API' }));
 
-// نقطة ترحيل مؤقتة — تُحذف بعد نقل البيانات على القرص الدائم
-if (process.env.MIGRATE_KEY) {
-  app.post('/api/admin/migrate', async (req, res) => {
-    if (req.get('x-migrate-key') !== process.env.MIGRATE_KEY) return res.status(403).json({ error: 'ممنوع' });
-    const count = db.prepare('SELECT COUNT(*) c FROM products').get().c;
-    if (count > 0) return res.status(409).json({ error: 'البيانات منقولة مسبقًا', products: count });
-    try {
-      db.exec(String(req.body || ''));
-      const counts = {};
-      for (const t of ['products', 'product_variants', 'categories', 'inventory_movements']) {
-        counts[t] = db.prepare(`SELECT COUNT(*) c FROM ${t}`).get().c;
-      }
-      res.json({ ok: true, counts });
-    } catch (e) {
-      res.status(400).json({ error: 'فشل الترحيل: ' + e.message.slice(0, 200) });
-    }
-  });
+// استعادة البيانات القديمة لمرة واحدة عند أول تشغيل (تُعاد بعد كل نشر إن لم تُنقل)
+async function restoreLegacy() {
+  const count = db.prepare('SELECT COUNT(*) c FROM products').get().c;
+  if (count > 0) return;
+  const sqlPath = new URL('../../old_data/migration.sql', import.meta.url);
+  const gzPath = new URL('../../old_data/migration.sql.gz', import.meta.url);
+  try {
+    let text;
+    if (fs.existsSync(gzPath)) text = zlib.gunzipSync(fs.readFileSync(gzPath)).toString('utf8');
+    else if (fs.existsSync(sqlPath)) text = fs.readFileSync(sqlPath, 'utf8');
+    else return;
+    db.exec(text);
+    const c = db.prepare('SELECT COUNT(*) c FROM products').get().c;
+    console.log(`✔ تمت استعادة البيانات القديمة: ${c} منتجًا`);
+  } catch (e) {
+    console.error('فشلت استعادة البيانات القديمة:', e.message.slice(0, 200));
+  }
 }
+await restoreLegacy();
 app.use('/api/auth', authModule);
 app.use('/api', authRequired, usersModule);
 app.use('/api', authRequired, catalogModule);

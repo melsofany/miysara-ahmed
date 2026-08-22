@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { errMsg } from '../api.js';
 import { PageTitle, Modal, Field, ErrorBox, Table, Badge } from '../components/UI.jsx';
 
@@ -61,7 +62,7 @@ export default function Users() {
       </PageTitle>
 
       <div className="mb-4 flex gap-2">
-        {[['users', '👥 المستخدمون'], ['roles', '🛡️ الأدوار والصلاحيات']].map(([k, l]) => (
+        {[['users', ' المستخدمون'], ['roles', '️ الأدوار والصلاحيات']].map(([k, l]) => (
           <button key={k} onClick={() => setTab(k)} className={`rounded-xl px-4 py-2 text-sm font-bold ${tab === k ? 'bg-brand-600 text-white shadow' : 'bg-white border border-slate-200 text-slate-600'}`}>{l}</button>
         ))}
       </div>
@@ -78,8 +79,8 @@ export default function Users() {
               <td className="td">{u.is_active ? <Badge color="green">نشط</Badge> : <Badge color="red">معطّل</Badge>}</td>
               <td className="td">
                 <div className="flex gap-1">
-                  <button className="btn-ghost !px-2 !py-1" onClick={() => { setForm({ ...u, password: '' }); setEdit(u.id); setError(''); setModal(true); }}>✏️</button>
-                  <button className="btn-ghost !px-2 !py-1 text-rose-600" onClick={() => removeUser(u)}>🗑</button>
+                  <button className="btn-ghost !px-2 !py-1" onClick={() => { setForm({ ...u, password: '' }); setEdit(u.id); setError(''); setModal(true); }}><Icon name="edit" size={15} className="inline-block align-[-2px]" /></button>
+                  <button className="btn-ghost !px-2 !py-1 text-rose-600" onClick={() => removeUser(u)}><Icon name="trash" size={15} className="inline-block align-[-2px]" /></button>
                 </div>
               </td>
             </tr>
@@ -91,7 +92,7 @@ export default function Users() {
             <div key={r.id} className="card p-4">
               <div className="flex items-center justify-between mb-2">
                 <div><b>{r.name_ar}</b> <span className="text-xs text-slate-400" dir="ltr">{r.name}</span></div>
-                <button className="btn-ghost !px-2 !py-1" onClick={() => { setRoleForm({ id: r.id, name: r.name, name_ar: r.name_ar, description: r.description || '', permissions: r.permissions }); setError(''); setRoleModal(true); }}>✏️</button>
+                <button className="btn-ghost !px-2 !py-1" onClick={() => { setRoleForm({ id: r.id, name: r.name, name_ar: r.name_ar, description: r.description || '', permissions: r.permissions }); setError(''); setRoleModal(true); }}><Icon name="edit" size={15} className="inline-block align-[-2px]" /></button>
               </div>
               <div className="flex flex-wrap gap-1">
                 {r.permissions.slice(0, 12).map(p => <span key={p} className="badge bg-slate-100 text-slate-600" dir="ltr">{p}</span>)}
@@ -103,7 +104,7 @@ export default function Users() {
       )}
 
       {/* مستخدم */}
-      <Modal open={modal} onClose={() => setModal(false)} title={edit ? '✏️ تعديل مستخدم' : '＋ مستخدم جديد'} wide>
+      <Modal open={modal} onClose={() => setModal(false)} title={edit ? '️ تعديل مستخدم' : '＋ مستخدم جديد'} wide>
         <ErrorBox error={error} />
         <div className="grid md:grid-cols-2 gap-3">
           {!edit && <Field label="اسم المستخدم *"><input className="input" dir="ltr" value={form.username || ''} onChange={e => setForm({ ...form, username: e.target.value })} /></Field>}
@@ -130,11 +131,11 @@ export default function Users() {
           </Field>
           {edit && <label className="flex items-center gap-2 font-semibold text-sm"><input type="checkbox" className="h-4 w-4 accent-brand-600" checked={!!form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked ? 1 : 0 })} /> نشط</label>}
         </div>
-        <button disabled={busy} onClick={saveUser} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ الحفظ…' : '💾 حفظ'}</button>
+        <button disabled={busy} onClick={saveUser} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ الحفظ…' : ' حفظ'}</button>
       </Modal>
 
       {/* دور */}
-      <Modal open={roleModal} onClose={() => setRoleModal(false)} title={roleForm.id ? `✏️ تعديل دور — ${roleForm.name_ar}` : '＋ دور جديد'} wide>
+      <Modal open={roleModal} onClose={() => setRoleModal(false)} title={roleForm.id ? `️ تعديل دور — ${roleForm.name_ar}` : '＋ دور جديد'} wide>
         <ErrorBox error={error} />
         <div className="grid md:grid-cols-2 gap-3 mb-4">
           {!roleForm.id && <Field label="الاسم الإنجليزي *"><input className="input" dir="ltr" placeholder="senior_cashier" value={roleForm.name || ''} onChange={e => setRoleForm({ ...roleForm, name: e.target.value })} /></Field>}
@@ -157,7 +158,7 @@ export default function Users() {
             </div>
           ))}
         </div>
-        <button disabled={busy} onClick={saveRole} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ الحفظ…' : '💾 حفظ الدور'}</button>
+        <button disabled={busy} onClick={saveRole} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ الحفظ…' : ' حفظ الدور'}</button>
       </Modal>
     </div>
   );

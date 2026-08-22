@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { errMsg, fmt } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { PageTitle, Modal, Field, ErrorBox, SuccessBox, Table, Badge } from '../components/UI.jsx';
@@ -131,11 +132,11 @@ export default function Inventory() {
   return (
     <div>
       <PageTitle title="إدارة المخزون" subtitle="الأرصدة والحركات والتحويلات والجرد">
-        {has('inventory.receive') && <button className="btn-success" onClick={() => { setModal('receive'); setError(''); }}>📥 استلام</button>}
-        {has('inventory.adjust') && <button className="btn-secondary" onClick={() => { setModal('issue'); setError(''); }}>📤 صرف</button>}
-        {has('inventory.transfer') && <button className="btn-primary" onClick={() => { setModal('transfer'); setError(''); }}>🔄 تحويل</button>}
-        {has('inventory.adjust') && <button className="btn-secondary" onClick={() => { setModal('adjust'); setError(''); }}>⚖️ تسوية</button>}
-        {has('inventory.stocktake') && <button className="btn-secondary" onClick={() => { setModal('stocktake'); setCounts({}); setError(''); }}>🧮 جرد</button>}
+        {has('inventory.receive') && <button className="btn-success" onClick={() => { setModal('receive'); setError(''); }}><Icon name="download" size={15} className="inline-block align-[-2px]" /> استلام</button>}
+        {has('inventory.adjust') && <button className="btn-secondary" onClick={() => { setModal('issue'); setError(''); }}><Icon name="upload" size={15} className="inline-block align-[-2px]" /> صرف</button>}
+        {has('inventory.transfer') && <button className="btn-primary" onClick={() => { setModal('transfer'); setError(''); }}><Icon name="refresh" size={15} className="inline-block align-[-2px]" /> تحويل</button>}
+        {has('inventory.adjust') && <button className="btn-secondary" onClick={() => { setModal('adjust'); setError(''); }}><Icon name="scale" size={15} className="inline-block align-[-2px]" /> تسوية</button>}
+        {has('inventory.stocktake') && <button className="btn-secondary" onClick={() => { setModal('stocktake'); setCounts({}); setError(''); }}><Icon name="calc" size={15} className="inline-block align-[-2px]" /> جرد</button>}
       </PageTitle>
       <SuccessBox msg={success} />
 
@@ -143,7 +144,7 @@ export default function Inventory() {
         <div>
           <label className="label">نوع الموقع</label>
           <div className="flex gap-1 rounded-xl bg-slate-100 p-1">
-            {[['warehouse', '🏬 مخزن'], ['pos', '🛒 نقطة بيع']].map(([k, l]) => (
+            {[['warehouse', ' مخزن'], ['pos', ' نقطة بيع']].map(([k, l]) => (
               <button key={k} onClick={() => { setLocType(k); const list = k === 'warehouse' ? warehouses : posList; setLocId(list[0]?.id || null); }}
                 className={`rounded-lg px-4 py-1.5 text-sm font-bold ${locType === k ? 'bg-white shadow text-brand-700' : 'text-slate-500'}`}>{l}</button>
             ))}
@@ -218,7 +219,7 @@ export default function Inventory() {
 
       {/* استلام / صرف / تحويل */}
       <Modal open={['receive', 'issue', 'transfer'].includes(modal)} onClose={() => setModal('')} wide
-        title={modal === 'receive' ? '📥 استلام بضاعة من مورد' : modal === 'issue' ? '📤 صرف من المخزن' : '🔄 تحويل مخزون'}>
+        title={modal === 'receive' ? ' استلام بضاعة من مورد' : modal === 'issue' ? ' صرف من المخزن' : ' تحويل مخزون'}>
         <ErrorBox error={error} />
         <div className="grid md:grid-cols-3 gap-3 mb-3">
           {modal === 'transfer' ? (
@@ -255,15 +256,15 @@ export default function Inventory() {
             <div key={i} className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm">
               <span className="font-semibold">{l.label}</span>
               <span>× {fmt(l.quantity)}{modal === 'receive' && l.cost_price ? ` — تكلفة ${fmt(l.cost_price)}` : ''}</span>
-              <button className="text-rose-500" onClick={() => setLines(lines.filter((_, j) => j !== i))}>🗑</button>
+              <button className="text-rose-500" onClick={() => setLines(lines.filter((_, j) => j !== i))}><Icon name="trash" size={15} className="inline-block align-[-2px]" /></button>
             </div>
           ))}
         </div>
-        <button disabled={busy} onClick={submitOp} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ التنفيذ…' : '✅ تنفيذ'}</button>
+        <button disabled={busy} onClick={submitOp} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ التنفيذ…' : ' تنفيذ'}</button>
       </Modal>
 
       {/* تسوية */}
-      <Modal open={modal === 'adjust'} onClose={() => setModal('')} title="⚖️ تسوية مخزون">
+      <Modal open={modal === 'adjust'} onClose={() => setModal('')} title="️ تسوية مخزون">
         <ErrorBox error={error} />
         <div className="space-y-3">
           <Field label="الصنف"><VariantPicker value={adj.variant} onChange={v => setAdj({ ...adj, variant: v })} /></Field>
@@ -274,7 +275,7 @@ export default function Inventory() {
       </Modal>
 
       {/* جرد */}
-      <Modal open={modal === 'stocktake'} onClose={() => setModal('')} title="🧮 جرد المخزون" wide>
+      <Modal open={modal === 'stocktake'} onClose={() => setModal('')} title=" جرد المخزون" wide>
         <ErrorBox error={error} />
         <p className="text-sm text-slate-500 mb-3">أدخل الكمية الفعلية المعدودة — سيتم تسجيل فروقات الجرد فقط. اترك الحقل فارغًا لتجاهل الصنف.</p>
         <div className="max-h-[55vh] overflow-y-auto space-y-1.5">

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { errMsg } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { PageTitle, Field, ErrorBox, SuccessBox, Table } from '../components/UI.jsx';
@@ -32,8 +33,8 @@ export default function Settings() {
     <div>
       <PageTitle title="الإعدادات والنظام" />
       <div className="mb-4 flex gap-2">
-        {has('settings.manage') && <button onClick={() => setTab('settings')} className={`rounded-xl px-4 py-2 text-sm font-bold ${tab === 'settings' ? 'bg-brand-600 text-white' : 'bg-white border border-slate-200'}`}>⚙️ الإعدادات</button>}
-        {has('audit.view') && <button onClick={() => setTab('audit')} className={`rounded-xl px-4 py-2 text-sm font-bold ${tab === 'audit' ? 'bg-brand-600 text-white' : 'bg-white border border-slate-200'}`}>📜 سجل العمليات</button>}
+        {has('settings.manage') && <button onClick={() => setTab('settings')} className={`rounded-xl px-4 py-2 text-sm font-bold ${tab === 'settings' ? 'bg-brand-600 text-white' : 'bg-white border border-slate-200'}`}><Icon name="settings" size={15} className="inline-block align-[-2px]" /> الإعدادات</button>}
+        {has('audit.view') && <button onClick={() => setTab('audit')} className={`rounded-xl px-4 py-2 text-sm font-bold ${tab === 'audit' ? 'bg-brand-600 text-white' : 'bg-white border border-slate-200'}`}><Icon name="history" size={15} className="inline-block align-[-2px]" /> سجل العمليات</button>}
       </div>
       <SuccessBox msg={success} /><ErrorBox error={error} />
 
@@ -47,7 +48,7 @@ export default function Settings() {
               onChange={e => setSettings({ ...settings, allow_negative_stock: e.target.checked ? '1' : '0' })} />
             السماح بالمخزون السالب (البيع/الصرف بدون رصيد)
           </label>
-          <button onClick={save} className="btn-primary !py-3 px-8">💾 حفظ الإعدادات</button>
+          <button onClick={save} className="btn-primary !py-3 px-8"><Icon name="save" size={15} className="inline-block align-[-2px]" /> حفظ الإعدادات</button>
         </div>
       )}
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { errMsg } from '../api.js';
 import { PageTitle, Modal, Field, ErrorBox, Table, Badge } from '../components/UI.jsx';
 
@@ -64,7 +65,7 @@ export default function MasterData() {
             ))}
             {tab.key === 'categories' && <td className="td text-slate-500">{rows.find(x => x.id === r.parent_id)?.name || '— رئيسي —'}</td>}
             <td className="td">{'is_active' in r ? (r.is_active ? <Badge color="green">نشط</Badge> : <Badge color="red">معطّل</Badge>) : '—'}</td>
-            <td className="td"><button className="btn-ghost !px-2 !py-1" onClick={() => openEdit(r)}>✏️</button></td>
+            <td className="td"><button className="btn-ghost !px-2 !py-1" onClick={() => openEdit(r)}><Icon name="edit" size={15} className="inline-block align-[-2px]" /></button></td>
           </tr>
         ))}
       </Table>
@@ -90,7 +91,7 @@ export default function MasterData() {
             </label>
           )}
         </div>
-        <button disabled={busy} onClick={save} className="btn-primary w-full mt-5 !py-3">{busy ? 'جارٍ الحفظ…' : '💾 حفظ'}</button>
+        <button disabled={busy} onClick={save} className="btn-primary w-full mt-5 !py-3">{busy ? 'جارٍ الحفظ…' : ' حفظ'}</button>
       </Modal>
     </div>
   );

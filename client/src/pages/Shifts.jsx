@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { errMsg, fmt } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { PageTitle, Modal, Field, ErrorBox, SuccessBox, Table, Badge } from '../components/UI.jsx';
@@ -101,8 +102,8 @@ export default function Shifts() {
             <td className="td">{s.status === 'open' ? <Badge color="green">مفتوح</Badge> : <Badge color="slate">مغلق</Badge>}</td>
             <td className="td">
               <div className="flex gap-1">
-                <button className="btn-ghost !px-2 !py-1" onClick={async () => setDetail((await api.get(`/shifts/${s.id}`)).data)}>👁</button>
-                {s.status === 'open' && has('expenses.manage') && <button className="btn-ghost !px-2 !py-1" title="مصروف" onClick={() => { setExpModal(s); setError(''); }}>💸</button>}
+                <button className="btn-ghost !px-2 !py-1" onClick={async () => setDetail((await api.get(`/shifts/${s.id}`)).data)}><Icon name="eye" size={15} className="inline-block align-[-2px]" /></button>
+                {s.status === 'open' && has('expenses.manage') && <button className="btn-ghost !px-2 !py-1" title="مصروف" onClick={() => { setExpModal(s); setError(''); }}><Icon name="moneyDown" size={15} className="inline-block align-[-2px]" /></button>}
                 {s.status === 'open' && has('shifts.close') && <button className="btn-danger !px-2.5 !py-1" onClick={() => { setCloseModal(s); setError(''); setCloseResult(null); }}>إغلاق</button>}
               </div>
             </td>
@@ -111,7 +112,7 @@ export default function Shifts() {
       </Table>
 
       {/* تفاصيل */}
-      <Modal open={!!detail} onClose={() => setDetail(null)} title={`💰 شفت #${detail?.id} — ${detail?.cashier_name}`} wide>
+      <Modal open={!!detail} onClose={() => setDetail(null)} title={` شفت #${detail?.id} — ${detail?.cashier_name}`} wide>
         {detail && (
           <div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm mb-3">
@@ -136,7 +137,7 @@ export default function Shifts() {
       </Modal>
 
       {/* إغلاق */}
-      <Modal open={!!closeModal} onClose={() => setCloseModal(null)} title={`🔒 إغلاق شفت #${closeModal?.id}`}>
+      <Modal open={!!closeModal} onClose={() => setCloseModal(null)} title={` إغلاق شفت #${closeModal?.id}`}>
         <ErrorBox error={error} />
         {closeModal && (
           <div className="space-y-3 text-sm">
@@ -150,13 +151,13 @@ export default function Shifts() {
             <Field label="النقدية الفعلية في الدرج *">
               <input autoFocus type="number" min="0" className="input !text-xl text-center font-bold" value={actualCash} onChange={e => setActualCash(e.target.value)} />
             </Field>
-            <button onClick={doClose} className="btn-danger w-full !py-3">🔒 إغلاق الشفت</button>
+            <button onClick={doClose} className="btn-danger w-full !py-3"><Icon name="lock" size={15} className="inline-block align-[-2px]" /> إغلاق الشفت</button>
           </div>
         )}
       </Modal>
 
       {/* مصروف */}
-      <Modal open={!!expModal} onClose={() => setExpModal(null)} title={`💸 مصروف نقدي — شفت #${expModal?.id}`}>
+      <Modal open={!!expModal} onClose={() => setExpModal(null)} title={` مصروف نقدي — شفت #${expModal?.id}`}>
         <ErrorBox error={error} />
         <div className="space-y-3">
           <Field label="المبلغ *"><input type="number" min="0.01" className="input text-center font-bold" value={exp.amount} onChange={e => setExp({ ...exp, amount: e.target.value })} /></Field>

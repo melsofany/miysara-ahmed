@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../App.jsx';
+import Icon from './Icon.jsx';
 
 const NAV = [
-  { to: '/', label: 'لوحة التحكم', icon: '📊', perm: 'dashboard.view' },
-  { to: '/pos', label: 'نقطة البيع', icon: '🛒', perm: 'pos.sell' },
-  { to: '/invoices', label: 'الفواتير', icon: '🧾', perm: 'invoices.view' },
-  { to: '/returns', label: 'المرتجعات', icon: '↩️', perm: 'returns.view' },
-  { to: '/shifts', label: 'الشفتات', icon: '💰', perm: 'shifts.open' },
-  { to: '/inventory', label: 'المخزون', icon: '📦', perm: 'inventory.view' },
-  { to: '/products', label: 'المنتجات', icon: '👕', perm: 'products.view' },
-  { to: '/master-data', label: 'البيانات الأساسية', icon: '🗂️', perm: 'catalog.manage' },
-  { to: '/reports', label: 'التقارير', icon: '📈', perm: 'reports.view' },
-  { to: '/users', label: 'المستخدمون', icon: '👥', perm: 'users.manage' },
-  { to: '/settings', label: 'الإعدادات', icon: '⚙️', perm: 'settings.manage' },
+  { to: '/', label: 'لوحة التحكم', icon: 'dashboard', perm: 'dashboard.view' },
+  { to: '/pos', label: 'نقطة البيع', icon: 'cart', perm: 'pos.sell' },
+  { to: '/invoices', label: 'الفواتير', icon: 'receipt', perm: 'invoices.view' },
+  { to: '/returns', label: 'المرتجعات', icon: 'returns', perm: 'returns.view' },
+  { to: '/shifts', label: 'الشفتات', icon: 'cash', perm: 'shifts.open' },
+  { to: '/inventory', label: 'المخزون', icon: 'box', perm: 'inventory.view' },
+  { to: '/products', label: 'المنتجات', icon: 'shirt', perm: 'products.view' },
+  { to: '/master-data', label: 'البيانات الأساسية', icon: 'database', perm: 'catalog.manage' },
+  { to: '/reports', label: 'التقارير', icon: 'chart', perm: 'reports.view' },
+  { to: '/users', label: 'المستخدمون', icon: 'users', perm: 'users.manage' },
+  { to: '/settings', label: 'الإعدادات', icon: 'settings', perm: 'settings.manage' },
 ];
 
 export default function Layout() {
@@ -25,7 +26,7 @@ export default function Layout() {
     <div className="min-h-screen lg:flex">
       {/* شريط علوي للموبايل */}
       <header className="lg:hidden sticky top-0 z-30 flex items-center justify-between bg-brand-900 text-white px-4 py-3 shadow">
-        <button onClick={() => setOpen(!open)} className="text-2xl leading-none">☰</button>
+        <button onClick={() => setOpen(!open)} className="p-1 leading-none"><Icon name="menu" size={26} /></button>
         <div className="font-extrabold">ميسرة أحمد</div>
         <div className="text-xs opacity-80">{user?.full_name}</div>
       </header>
@@ -40,7 +41,7 @@ export default function Layout() {
           {items.map(n => (
             <NavLink key={n.to} to={n.to} end={n.to === '/'} onClick={() => setOpen(false)}
               className={({ isActive }) => `flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${isActive ? 'bg-brand-600 text-white shadow' : 'text-brand-100/80 hover:bg-white/10'}`}>
-              <span className="text-lg">{n.icon}</span>{n.label}
+              <Icon name={n.icon} size={19} className="shrink-0" />{n.label}
             </NavLink>
           ))}
         </nav>

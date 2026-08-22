@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { fmt } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { PageTitle, Table } from '../components/UI.jsx';
@@ -59,8 +60,8 @@ export default function Reports() {
   return (
     <div>
       <PageTitle title="التقارير" subtitle="مبيعات • مخزون • أرباح • كاشيرز">
-        {has('reports.export') && <button className="btn-secondary" onClick={() => exportCsv(`report-${tab}`, rows)}>⬇️ تصدير Excel/CSV</button>}
-        <button className="btn-secondary" onClick={() => window.print()}>🖨 طباعة / PDF</button>
+        {has('reports.export') && <button className="btn-secondary" onClick={() => exportCsv(`report-${tab}`, rows)}><Icon name="download" size={15} className="inline-block align-[-2px]" /> تصدير Excel/CSV</button>}
+        <button className="btn-secondary" onClick={() => window.print()}><Icon name="print" size={15} className="inline-block align-[-2px]" /> طباعة / PDF</button>
       </PageTitle>
 
       <div className="mb-4 flex flex-wrap gap-2">

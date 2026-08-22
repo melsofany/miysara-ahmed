@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { fmt } from '../api.js';
 import { PageTitle, Table, Badge, Modal } from '../components/UI.jsx';
 
@@ -37,12 +38,12 @@ export default function Returns() {
             <td className="td">{r.user_name}</td>
             <td className="td font-extrabold text-rose-600">{fmt(r.total_refund)}</td>
             <td className="td text-slate-500 max-w-[200px] truncate">{r.reason}</td>
-            <td className="td"><button className="btn-ghost !px-2 !py-1" onClick={async () => setDetail((await api.get(`/returns/${r.id}`)).data)}>👁</button></td>
+            <td className="td"><button className="btn-ghost !px-2 !py-1" onClick={async () => setDetail((await api.get(`/returns/${r.id}`)).data)}><Icon name="eye" size={15} className="inline-block align-[-2px]" /></button></td>
           </tr>
         ))}
       </Table>
 
-      <Modal open={!!detail} onClose={() => setDetail(null)} title={`↩️ مرتجع ${detail?.return_number}`}>
+      <Modal open={!!detail} onClose={() => setDetail(null)} title={`️ مرتجع ${detail?.return_number}`}>
         {detail && (
           <div>
             <div className="text-sm mb-3 text-slate-500">فاتورة <b className="text-brand-700">{detail.inv_no}</b> — {detail.created_at} — نفّذه: <b>{detail.user_name}</b></div>

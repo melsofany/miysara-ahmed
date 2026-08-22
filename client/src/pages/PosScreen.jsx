@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { errMsg, fmt } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { Modal, ErrorBox, Field } from '../components/UI.jsx';
 import Receipt from '../components/Receipt.jsx';
 
-const PAYMENTS = [['cash', 'نقدي 💵'], ['card', 'بطاقة 💳'], ['bank_transfer', 'تحويل بنكي 🏦'], ['wallet', 'محفظة إلكترونية 📱']];
+const PAYMENTS = [['cash', 'نقدي'], ['card', 'بطاقة'], ['bank_transfer', 'تحويل بنكي'], ['wallet', 'محفظة إلكترونية']];
 
 export default function PosScreen() {
   const { user, has } = useAuth();
@@ -125,7 +126,7 @@ export default function PosScreen() {
         <div className="card p-4 mb-4">
           <div className="flex flex-wrap gap-3 items-end">
             <div className="flex-1 min-w-[220px]">
-              <label className="label">🔍 بحث / باركود (Enter للإضافة الفورية)</label>
+              <label className="label"><Icon name="search" size={15} className="inline-block align-[-2px]" /> بحث / باركود (Enter للإضافة الفورية)</label>
               <input ref={scanRef} autoFocus className="input !text-lg !py-3" placeholder="امسح الباركود أو اكتب اسم / SKU / موديل…"
                 value={filters.q} onChange={e => setFilters({ ...filters, q: e.target.value })} onKeyDown={onScan} />
             </div>
@@ -162,11 +163,11 @@ export default function PosScreen() {
           </div>
           <div className="mt-2 flex items-center justify-between">
             <div className={`text-sm font-bold ${shift ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {shift ? `✅ شفت مفتوح #${shift.id} — فكة: ${fmt(shift.opening_cash)} — مبيعات نقدية: ${fmt(shift.cash_sales)}` : '⛔ لا يوجد شفت مفتوح'}
+              {shift ? ` شفت مفتوح #${shift.id} — فكة: ${fmt(shift.opening_cash)} — مبيعات نقدية: ${fmt(shift.cash_sales)}` : ' لا يوجد شفت مفتوح'}
             </div>
             {!shift && <button className="btn-success !py-1.5" onClick={() => setOpenShiftModal(true)}>فتح شفت</button>}
             {Object.values(selected).some(s => s.on) && (
-              <button className="btn-primary !py-1.5" onClick={addSelected}>➕ إضافة المحدد ({Object.values(selected).filter(s => s.on).length})</button>
+              <button className="btn-primary !py-1.5" onClick={addSelected}><Icon name="plus" size={15} className="inline-block align-[-2px]" /> إضافة المحدد ({Object.values(selected).filter(s => s.on).length})</button>
             )}
           </div>
         </div>
@@ -192,7 +193,7 @@ export default function PosScreen() {
                   <input type="number" min="1" className="input !w-16 !px-2 text-center" value={sel.qty || 1}
                     onChange={e => setSelected({ ...selected, [r.variant_id]: { ...sel, qty: e.target.value } })} />
                 )}
-                <button disabled={out} className="btn-primary !px-3 !py-2 text-lg" onClick={() => addToCart(r, 1)}>＋</button>
+                <button disabled={out} className="btn-primary !px-3 !py-2 text-lg" onClick={() => addToCart(r, 1)}><Icon name="plus" size={20} /></button>
               </div>
             );
           })}
@@ -202,7 +203,7 @@ export default function PosScreen() {
 
       {/* الفاتورة */}
       <div className="card p-4 lg:sticky lg:top-4">
-        <h3 className="font-extrabold text-lg mb-3">🧾 الفاتورة الحالية</h3>
+        <h3 className="font-extrabold text-lg mb-3"><Icon name="receipt" size={15} className="inline-block align-[-2px]" /> الفاتورة الحالية</h3>
         <ErrorBox error={error} />
         <div className="space-y-2 max-h-[38vh] overflow-y-auto">
           {cart.map((x, i) => (
@@ -212,13 +213,13 @@ export default function PosScreen() {
                   <div className="font-bold text-sm truncate">{x.product_name}</div>
                   <div className="text-xs text-slate-500">{x.size} • {x.color}</div>
                 </div>
-                <button className="text-rose-500 font-bold px-2" onClick={() => setCart(cart.filter((_, j) => j !== i))}>🗑</button>
+                <button className="text-rose-500 font-bold px-2" onClick={() => setCart(cart.filter((_, j) => j !== i))}><Icon name="trash" size={15} className="inline-block align-[-2px]" /></button>
               </div>
               <div className="mt-2 flex items-center gap-2 text-sm">
                 <button className="btn-secondary !px-2.5 !py-1" onClick={() => setCart(cart.map((c, j) => j === i ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}>−</button>
                 <input type="number" min="1" className="input !w-16 !py-1 text-center" value={x.quantity}
                   onChange={e => setCart(cart.map((c, j) => j === i ? { ...c, quantity: Math.max(1, Number(e.target.value) || 1) } : c))} />
-                <button className="btn-secondary !px-2.5 !py-1" onClick={() => setCart(cart.map((c, j) => j === i ? { ...c, quantity: c.quantity + 1 } : c))}>＋</button>
+                <button className="btn-secondary !px-2.5 !py-1" onClick={() => setCart(cart.map((c, j) => j === i ? { ...c, quantity: c.quantity + 1 } : c))}><Icon name="plus" size={20} /></button>
                 <span className="text-slate-400">×</span>
                 <span className="font-bold">{fmt(x.selling_price)}</span>
                 <input type="number" min="0" placeholder="خصم" title="خصم البند" className="input !w-20 !py-1 text-center"
@@ -247,13 +248,13 @@ export default function PosScreen() {
             <span>الباقي للعميل</span><span>{fmt(Math.max(0, paid === '' ? 0 : change))}</span>
           </div>
           <button disabled={busy || !cart.length} onClick={checkout} className="btn-success w-full !py-3.5 !text-lg mt-1">
-            {busy ? 'جارٍ الحفظ…' : `✅ إتمام البيع — ${fmt(total)}`}
+            {busy ? 'جارٍ الحفظ…' : ` إتمام البيع — ${fmt(total)}`}
           </button>
         </div>
       </div>
 
       {/* فتح شفت */}
-      <Modal open={openShiftModal} onClose={() => setOpenShiftModal(false)} title="💰 فتح شفت جديد">
+      <Modal open={openShiftModal} onClose={() => setOpenShiftModal(false)} title=" فتح شفت جديد">
         <ErrorBox error={error} />
         <Field label="الفكة الافتتاحية (Opening Cash)">
           <input autoFocus type="number" min="0" className="input !text-xl text-center font-bold" value={openingCash} onChange={e => setOpeningCash(e.target.value)} placeholder="2000" />
@@ -262,10 +263,10 @@ export default function PosScreen() {
       </Modal>
 
       {/* إيصال الطباعة */}
-      <Modal open={!!receipt} onClose={() => setReceipt(null)} title="✅ تم البيع بنجاح">
+      <Modal open={!!receipt} onClose={() => setReceipt(null)} title=" تم البيع بنجاح">
         {receipt && <Receipt data={receipt} />}
         <div className="mt-4 flex gap-2">
-          <button className="btn-primary flex-1" onClick={() => window.print()}>🖨 طباعة الإيصال</button>
+          <button className="btn-primary flex-1" onClick={() => window.print()}><Icon name="print" size={15} className="inline-block align-[-2px]" /> طباعة الإيصال</button>
           <button className="btn-secondary flex-1" onClick={() => { setReceipt(null); scanRef.current?.focus(); }}>فاتورة جديدة</button>
         </div>
       </Modal>

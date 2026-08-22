@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { errMsg, fmt } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { PageTitle, Modal, Field, ErrorBox, SuccessBox, Table, Badge } from '../components/UI.jsx';
@@ -117,14 +118,14 @@ export default function Invoices() {
             <td className="td">{PAY_AR[i.payment_method]}</td>
             <td className="td"><Badge color={STATUS_AR[i.status]?.[1]}>{STATUS_AR[i.status]?.[0]}</Badge></td>
             <td className="td" onClick={e => e.stopPropagation()}>
-              {has('invoices.print') && <button className="btn-ghost !px-2 !py-1" title="طباعة" onClick={() => print(i.id)}>🖨</button>}
+              {has('invoices.print') && <button className="btn-ghost !px-2 !py-1" title="طباعة" onClick={() => print(i.id)}><Icon name="print" size={15} className="inline-block align-[-2px]" /></button>}
             </td>
           </tr>
         ))}
       </Table>
 
       {/* تفاصيل الفاتورة */}
-      <Modal open={!!detail && !editItems && !retItems} onClose={() => setDetail(null)} title={`🧾 فاتورة ${detail?.invoice_number}`} wide>
+      <Modal open={!!detail && !editItems && !retItems} onClose={() => setDetail(null)} title={`receipt فاتورة ${detail?.invoice_number}`} wide>
         {detail && (
           <div>
             <ErrorBox error={error} />
@@ -151,17 +152,17 @@ export default function Invoices() {
               <div className="text-lg">الإجمالي: <b className="text-brand-700">{fmt(detail.total)}</b> — المدفوع: <b>{fmt(detail.paid_amount)}</b> — الباقي: <b>{fmt(detail.change_amount)}</b></div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              {has('invoices.print') && <button className="btn-secondary" onClick={() => print(detail.id)}>🖨 طباعة</button>}
-              {has('invoices.edit') && !['cancelled', 'returned'].includes(detail.status) && <button className="btn-primary" onClick={startEdit}>✏️ تعديل</button>}
-              {has('returns.execute') && !['cancelled', 'returned'].includes(detail.status) && <button className="btn-secondary" onClick={startReturn}>↩️ مرتجع</button>}
-              {has('invoices.cancel') && detail.status !== 'cancelled' && <button className="btn-danger" onClick={cancelInvoice}>⛔ إلغاء</button>}
+              {has('invoices.print') && <button className="btn-secondary" onClick={() => print(detail.id)}><Icon name="print" size={15} className="inline-block align-[-2px]" /> طباعة</button>}
+              {has('invoices.edit') && !['cancelled', 'returned'].includes(detail.status) && <button className="btn-primary" onClick={startEdit}><Icon name="edit" size={15} className="inline-block align-[-2px]" /> تعديل</button>}
+              {has('returns.execute') && !['cancelled', 'returned'].includes(detail.status) && <button className="btn-secondary" onClick={startReturn}><Icon name="returns" size={15} className="inline-block align-[-2px]" /> مرتجع</button>}
+              {has('invoices.cancel') && detail.status !== 'cancelled' && <button className="btn-danger" onClick={cancelInvoice}><Icon name="ban" size={15} className="inline-block align-[-2px]" /> إلغاء</button>}
             </div>
           </div>
         )}
       </Modal>
 
       {/* تعديل الفاتورة */}
-      <Modal open={!!editItems} onClose={() => setEditItems(null)} title={`✏️ تعديل فاتورة ${detail?.invoice_number}`} wide>
+      <Modal open={!!editItems} onClose={() => setEditItems(null)} title={`️ تعديل فاتورة ${detail?.invoice_number}`} wide>
         <ErrorBox error={error} />
         {editItems && (
           <div>
@@ -173,7 +174,7 @@ export default function Invoices() {
                     onChange={e => setEditItems(editItems.map((x, j) => j === i ? { ...x, quantity: Math.max(Number(x.returned_qty) || 1, Number(e.target.value) || 0) } : x))} />
                   <input type="number" min="0" className="input !py-1.5 text-center" placeholder="خصم" value={it.discount}
                     onChange={e => setEditItems(editItems.map((x, j) => j === i ? { ...x, discount: Number(e.target.value) || 0 } : x))} />
-                  <button className="text-rose-500" onClick={() => setEditItems(editItems.filter((_, j) => j !== i))}>🗑</button>
+                  <button className="text-rose-500" onClick={() => setEditItems(editItems.filter((_, j) => j !== i))}><Icon name="trash" size={15} className="inline-block align-[-2px]" /></button>
                 </div>
               ))}
             </div>
@@ -183,13 +184,13 @@ export default function Invoices() {
               <Field label="طريقة الدفع"><select className="input" value={editForm.payment_method} onChange={e => setEditForm({ ...editForm, payment_method: e.target.value })}>{Object.entries(PAY_AR).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></Field>
               <Field label="سبب التعديل *"><input className="input" value={reason} onChange={e => setReason(e.target.value)} placeholder="إلزامي — يُسجل في سجل العمليات" /></Field>
             </div>
-            <button disabled={busy} onClick={saveEdit} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ الحفظ…' : '💾 حفظ التعديل'}</button>
+            <button disabled={busy} onClick={saveEdit} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ الحفظ…' : ' حفظ التعديل'}</button>
           </div>
         )}
       </Modal>
 
       {/* مرتجع */}
-      <Modal open={!!retItems} onClose={() => setRetItems(null)} title={`↩️ مرتجع من فاتورة ${detail?.invoice_number}`} wide>
+      <Modal open={!!retItems} onClose={() => setRetItems(null)} title={`️ مرتجع من فاتورة ${detail?.invoice_number}`} wide>
         <ErrorBox error={error} />
         {retItems && (
           <div>
@@ -203,15 +204,15 @@ export default function Invoices() {
               ))}
             </div>
             <Field label="سبب المرتجع *"><input className="input mt-2" value={retReason} onChange={e => setRetReason(e.target.value)} /></Field>
-            <button disabled={busy} onClick={saveReturn} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ التنفيذ…' : '↩️ تنفيذ المرتجع'}</button>
+            <button disabled={busy} onClick={saveReturn} className="btn-primary w-full mt-4 !py-3">{busy ? 'جارٍ التنفيذ…' : '️ تنفيذ المرتجع'}</button>
           </div>
         )}
       </Modal>
 
       {/* إيصال */}
-      <Modal open={!!receipt} onClose={() => setReceipt(null)} title="🖨 معاينة الإيصال">
+      <Modal open={!!receipt} onClose={() => setReceipt(null)} title=" معاينة الإيصال">
         {receipt && <Receipt data={receipt} />}
-        <button className="btn-primary w-full mt-4" onClick={() => window.print()}>🖨 طباعة</button>
+        <button className="btn-primary w-full mt-4" onClick={() => window.print()}><Icon name="print" size={15} className="inline-block align-[-2px]" /> طباعة</button>
       </Modal>
     </div>
   );

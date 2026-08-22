@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api, { fmt } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { PageTitle } from '../components/UI.jsx';
+import Icon from '../components/Icon.jsx';
 
 const PERIODS = [['today', 'اليوم'], ['yesterday', 'أمس'], ['week', 'هذا الأسبوع'], ['month', 'هذا الشهر']];
 
@@ -13,7 +14,7 @@ function Stat({ title, value, icon, tone = 'blue', sub }) {
   };
   return (
     <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${tones[tone]} p-5 text-white shadow-lg`}>
-      <div className="text-3xl absolute left-4 top-4 opacity-30">{icon}</div>
+      <div className="absolute left-4 top-4 opacity-30"><Icon name={icon} size={34} /></div>
       <div className="text-sm font-semibold opacity-90">{title}</div>
       <div className="mt-2 text-3xl font-extrabold tracking-tight">{value}</div>
       {sub && <div className="mt-1 text-xs opacity-80">{sub}</div>}
@@ -44,17 +45,17 @@ export default function Dashboard() {
       </PageTitle>
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-        <Stat title="مبيعات اليوم" value={fmt(d.today.total)} icon="💵" sub={`${d.today.cnt} فاتورة`} />
-        <Stat title="مبيعات الشهر" value={fmt(d.month_total)} icon="🗓️" tone="violet" />
-        <Stat title={`مبيعات الفترة`} value={fmt(d.sales.total)} icon="📈" tone="green" sub={`متوسط الفاتورة: ${fmt(d.sales.avg_invoice)}`} />
-        <Stat title="عدد الفواتير" value={fmt(d.sales.cnt)} icon="🧾" tone="slate" />
-        {has('profit.view') && <Stat title="إجمالي الربح" value={fmt(d.gross_profit)} icon="💰" tone="amber" />}
-        <Stat title="المرتجعات" value={fmt(d.returns.total)} icon="↩️" tone="rose" sub={`${d.returns.cnt} عملية`} />
-        <Stat title="الخصومات" value={fmt(d.sales.discounts)} icon="🏷️" tone="slate" />
-        <Stat title="النقدية في الأدراج المفتوحة" value={fmt(d.cash_in_open_drawers)} icon="🗄️" tone="blue" />
-        {has('cost.view') && <Stat title="قيمة المخزون (تكلفة)" value={fmt(d.inventory_cost_value)} icon="📦" tone="violet" />}
-        {has('cost.view') && <Stat title="قيمة المخزون (بيع)" value={fmt(d.inventory_selling_value)} icon="🏪" tone="green" />}
-        <Stat title="أصناف نافدة" value={fmt(d.out_of_stock_variants)} icon="⚠️" tone="rose" />
+        <Stat title="مبيعات اليوم" value={fmt(d.today.total)} icon="cash" sub={`${d.today.cnt} فاتورة`} />
+        <Stat title="مبيعات الشهر" value={fmt(d.month_total)} icon="calendar" tone="violet" />
+        <Stat title={`مبيعات الفترة`} value={fmt(d.sales.total)} icon="chart" tone="green" sub={`متوسط الفاتورة: ${fmt(d.sales.avg_invoice)}`} />
+        <Stat title="عدد الفواتير" value={fmt(d.sales.cnt)} icon="receipt" tone="slate" />
+        {has('profit.view') && <Stat title="إجمالي الربح" value={fmt(d.gross_profit)} icon="moneyUp" tone="amber" />}
+        <Stat title="المرتجعات" value={fmt(d.returns.total)} icon="returns" tone="rose" sub={`${d.returns.cnt} عملية`} />
+        <Stat title="الخصومات" value={fmt(d.sales.discounts)} icon="tag" tone="slate" />
+        <Stat title="النقدية في الأدراج المفتوحة" value={fmt(d.cash_in_open_drawers)} icon="archive" tone="blue" />
+        {has('cost.view') && <Stat title="قيمة المخزون (تكلفة)" value={fmt(d.inventory_cost_value)} icon="box" tone="violet" />}
+        {has('cost.view') && <Stat title="قيمة المخزون (بيع)" value={fmt(d.inventory_selling_value)} icon="store" tone="green" />}
+        <Stat title="أصناف نافدة" value={fmt(d.out_of_stock_variants)} icon="warn" tone="rose" />
       </div>
 
       <div className="mt-6 grid md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -97,7 +98,7 @@ export default function Dashboard() {
       </div>
 
       <div className="card p-5 mt-4">
-        <h3 className="font-extrabold mb-3">⚠️ أصناف منخفضة المخزون</h3>
+        <h3 className="font-extrabold mb-3"><Icon name="warn" size={15} className="inline-block align-[-2px]" /> أصناف منخفضة المخزون</h3>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead><tr className="bg-slate-50">{['المنتج', 'SKU', 'الموقع', 'الرصيد', 'حد الطلب'].map(h => <th key={h} className="th">{h}</th>)}</tr></thead>
@@ -113,7 +114,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
-          {!d.low_stock.length && <div className="py-6 text-center text-sm text-slate-400">لا توجد أصناف منخفضة المخزون 🎉</div>}
+          {!d.low_stock.length && <div className="py-6 text-center text-sm text-slate-400">لا توجد أصناف منخفضة المخزون <Icon name="party" size={15} className="inline-block align-[-2px]" /></div>}
         </div>
       </div>
     </div>

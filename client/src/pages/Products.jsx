@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Icon from '../components/Icon.jsx';
 import api, { errMsg, fmt } from '../api.js';
 import { useAuth } from '../App.jsx';
 import { PageTitle, Modal, Field, ErrorBox, SuccessBox, Table, Badge } from '../components/UI.jsx';
@@ -101,15 +102,15 @@ export default function Products() {
             <td className="td">{p.is_active ? <Badge color="green">نشط</Badge> : <Badge color="red">معطّل</Badge>}</td>
             <td className="td">
               <div className="flex gap-1">
-                {has('products.edit') && <button className="btn-ghost !px-2 !py-1" onClick={() => openEdit(p.id)}>✏️</button>}
-                {has('products.delete') && <button className="btn-ghost !px-2 !py-1 text-rose-600" onClick={() => remove(p.id)}>🗑</button>}
+                {has('products.edit') && <button className="btn-ghost !px-2 !py-1" onClick={() => openEdit(p.id)}><Icon name="edit" size={15} className="inline-block align-[-2px]" /></button>}
+                {has('products.delete') && <button className="btn-ghost !px-2 !py-1 text-rose-600" onClick={() => remove(p.id)}><Icon name="trash" size={15} className="inline-block align-[-2px]" /></button>}
               </div>
             </td>
           </tr>
         ))}
       </Table>
 
-      <Modal open={modal} onClose={() => setModal(false)} title={editId ? '✏️ تعديل منتج' : '＋ منتج جديد'} wide>
+      <Modal open={modal} onClose={() => setModal(false)} title={editId ? '️ تعديل منتج' : '＋ منتج جديد'} wide>
         <ErrorBox error={error} />
         <div className="grid md:grid-cols-3 gap-3">
           <Field label="اسم المنتج *"><input className="input" value={form.name} onChange={num('name')} /></Field>
@@ -142,13 +143,13 @@ export default function Products() {
                 {has('cost.view') ? <input type="number" className="input !py-1.5" placeholder="تكلفة" value={v.cost_price} onChange={e => setVariants(variants.map((x, j) => j === i ? { ...x, cost_price: e.target.value } : x))} /> : <span />}
                 <input type="number" className="input !py-1.5" placeholder="بيع" value={v.selling_price} onChange={e => setVariants(variants.map((x, j) => j === i ? { ...x, selling_price: e.target.value } : x))} />
                 <input type="number" className="input !py-1.5" placeholder="حد الطلب" value={v.min_stock} onChange={e => setVariants(variants.map((x, j) => j === i ? { ...x, min_stock: e.target.value } : x))} />
-                <button className="btn-ghost text-rose-600 !py-1.5" onClick={() => setVariants(variants.filter((_, j) => j !== i))}>🗑</button>
+                <button className="btn-ghost text-rose-600 !py-1.5" onClick={() => setVariants(variants.filter((_, j) => j !== i))}><Icon name="trash" size={15} className="inline-block align-[-2px]" /></button>
               </div>
             ))}
             {!variants.length && <div className="text-sm text-slate-400 text-center py-3">أضف متغيرًا واحدًا على الأقل (SKU + باركود مستقل لكل مقاس/لون)</div>}
           </div>
         </div>
-        <button disabled={busy} onClick={save} className="btn-primary w-full mt-5 !py-3">{busy ? 'جارٍ الحفظ…' : '💾 حفظ المنتج'}</button>
+        <button disabled={busy} onClick={save} className="btn-primary w-full mt-5 !py-3">{busy ? 'جارٍ الحفظ…' : ' حفظ المنتج'}</button>
       </Modal>
     </div>
   );
