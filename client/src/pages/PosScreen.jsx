@@ -12,7 +12,7 @@ export default function PosScreen() {
   const [posList, setPosList] = useState([]);
   const [posId, setPosId] = useState(null);
   const [shift, setShift] = useState(null);
-  const [filters, setFilters] = useState({ q: '', category_id: '', season_id: '', supplier_id: '', manufacturer_id: '', size: '', color: '', in_stock: '' });
+      const [filters, setFilters] = useState({ q: '', category_id: '', season_id: '', supplier_id: '', manufacturer_id: '', size: '', price: '', color: '', in_stock: '' });
   const [meta, setMeta] = useState({ categories: [], seasons: [], suppliers: [], manufacturers: [] });
   const [results, setResults] = useState([]);
   const [cart, setCart] = useState([]);
@@ -46,6 +46,7 @@ export default function PosScreen() {
   const search = (f = filters) => {
     if (!posId) return;
     const params = Object.fromEntries(Object.entries(f).filter(([, v]) => v !== '' && v != null));
+    if (params.price) { params.min_price = params.price; params.max_price = params.price; delete params.price; }
     api.get(`/pos/${posId}/search`, { params }).then(r => setResults(r.data)).catch(() => {});
   };
   useEffect(() => { search(); }, [posId]);
@@ -130,6 +131,14 @@ export default function PosScreen() {
               <input ref={scanRef} autoFocus className="input !text-lg !py-3" placeholder="امسح الباركود أو اكتب اسم / SKU / موديل…"
                 value={filters.q} onChange={e => setFilters({ ...filters, q: e.target.value })} onKeyDown={onScan} />
             </div>
+            <div className="w-28">
+              <label className="label">المقاس</label>
+              <input className="input" placeholder="مقاس" value={filters.size} onChange={e => setFilters({ ...filters, size: e.target.value })} />
+            </div>
+            <div className="w-28">
+              <label className="label">السعر</label>
+              <input type="number" min="0" step="0.25" className="input" placeholder="السعر" value={filters.price} onChange={e => setFilters({ ...filters, price: e.target.value })} />
+            </div>
             <div className="min-w-[180px]">
               <label className="label">نقطة البيع</label>
               <select className="input" value={posId || ''} onChange={e => setPosId(Number(e.target.value))}>
@@ -137,7 +146,7 @@ export default function PosScreen() {
               </select>
             </div>
           </div>
-          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-2">
+          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2">
             <select className="input" value={filters.category_id} onChange={e => setFilters({ ...filters, category_id: e.target.value })}>
               <option value="">كل التصنيفات</option>
               {meta.categories.map(c => <option key={c.id} value={c.id}>{c.parent_id ? '— ' : ''}{c.name}</option>)}
@@ -154,7 +163,6 @@ export default function PosScreen() {
               <option value="">كل الماركات</option>
               {meta.manufacturers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
             </select>
-            <input className="input" placeholder="المقاس" value={filters.size} onChange={e => setFilters({ ...filters, size: e.target.value })} />
             <input className="input" placeholder="اللون" value={filters.color} onChange={e => setFilters({ ...filters, color: e.target.value })} />
             <label className="input flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={filters.in_stock === '1'} onChange={e => setFilters({ ...filters, in_stock: e.target.checked ? '1' : '' })} />
