@@ -1,0 +1,11 @@
+node_modules/
+client/dist/
+server/data/miysara.db
+old_data/old_db.bak
+old_data/table_*.json
+old_data/stock_computed.json
+old_data/sys_*.json
+old_data/migration_report.txt
+.DS_Store
+*.log
+.env
